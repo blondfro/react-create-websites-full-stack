@@ -1,12 +1,10 @@
 import React from "react";
-import articleContent from "./article-content";
 import {Link} from "react-router-dom";
 
-const ArticlesList = () => {
+const ArticlesList = ({ articles }) => {
     return (
         <>
-            <h1>Articles List</h1>
-            {articleContent.map(article => (
+            {articles.map(article => (
                 <Link key={article.name}
                       className="article-list-item"
                       to={'article/' + article.name}>
@@ -15,6 +13,7 @@ const ArticlesList = () => {
                 </Link>
             ))}
         </>
+
     )
 };
 
