@@ -62,12 +62,30 @@ app.post("/api/articles/:name/upvote", async (req, res) => {
 });
 
 app.post("/api/articles/:name/add-comment", (req, res) => {
-    const { username, text } = req.body;
-    const articleName = req.params.name;
 
-    articlesInfo[articleName].comments.push({ username, text });
+    withDB(async (db) => {
+        const { username, text } = req.body;
+        const articleName = req.params.name;
 
-    res.status(200).send(articlesInfo[articleName]);
+        const articleInfo = await db
+            .collection('articles')
+            .findOne({ name: articleName });
+
+        await db
+            .collection('articles')
+            .updateOne({name: articleName}, {
+                '$set': {
+                    comments: articleInfo.comments.concat({ username, text })
+                }
+            });
+
+        const updatedArticleInfo = await db
+            .collection('articles')
+            .findOne({ name: articleName });
+
+        res.status(200).json(updatedArticleInfo);
+    }, res)
+
 });
 
 app.listen(PORT, ()=>{console.log("Listening on port: ", PORT)});
