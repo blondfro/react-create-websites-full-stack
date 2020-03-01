@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import ArticlesList from "../components/ArticlesList";
 import articleContent from "./article-content";
 import NotFoundPage from "./NotFoundPage";
@@ -6,6 +6,20 @@ import NotFoundPage from "./NotFoundPage";
 const ArticlePage = ({match}) => {
     const name = match.params.name;
     const article = articleContent.find(article => article.name === name);
+
+    const [articleInfo, setArticleInfo] = useState({
+        upvotes: 0,
+        comments: []
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await fetch('/api/articles/' + name);
+            const body = await result.json();
+            setArticleInfo(body);
+        };
+        fetchData();
+    }, [name]);
 
     if (!article) return <NotFoundPage/>;
     const otherArticles = articleContent.filter( article => (
@@ -15,6 +29,7 @@ const ArticlePage = ({match}) => {
     return (
         <>
             <h1>{article.title}</h1>
+            <p>This post has been upvoted {articleInfo.upvotes} times</p>
             {article.content.map((paragraph, key) => (
                 <div key={key}>{paragraph}</div>
             ))}
